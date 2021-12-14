@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FastCrypto", "FastCrypto\Fa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FastCrypto.Tests", "FastCrypto.Tests\FastCrypto.Tests.csproj", "{16EC11D1-140F-4A91-A5E4-DE4BD696FD16}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FastCrypto.Benchmarks", "FastCrypto.Benchmarks\FastCrypto.Benchmarks.csproj", "{110E73AA-0F93-4B77-ADF9-1650B8A8E627}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{16EC11D1-140F-4A91-A5E4-DE4BD696FD16}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{16EC11D1-140F-4A91-A5E4-DE4BD696FD16}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{16EC11D1-140F-4A91-A5E4-DE4BD696FD16}.Release|Any CPU.Build.0 = Release|Any CPU
+		{110E73AA-0F93-4B77-ADF9-1650B8A8E627}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{110E73AA-0F93-4B77-ADF9-1650B8A8E627}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{110E73AA-0F93-4B77-ADF9-1650B8A8E627}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{110E73AA-0F93-4B77-ADF9-1650B8A8E627}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -1,0 +1,12 @@
+namespace FastCrypto.Benchmarks;
+
+public static class Constants
+{
+    public const string String32Char = "nwMf35gn2KIalL8U7yd2SoyulzK3hAcq";
+
+    public const string String128Char = "Ak8p1mkPIhWyFwwXwn89n9qIJcGAK1SuiyU6sqKsqidIgseOJlOotle2wNuHGxhOwobAb2fBTUJ4Ar85ouMphTWtma2iU3IjmYBcgFm64jOOkzm5qDF1EV3e5mhQNTp5";
+
+    public const string String1024Char = "72q0uRbSvNmTETfLkalW1KCwldGoaDoeejlARraBiJpC6pyLClCzWMQnBSxM4duUeDM8Fz6DiO1cTuBYdDkM5MpHccUC2dKsDZXDzoZtfVQ7KzWwv7LUroI2Ru2gBPqabsAC8znb7RP4RcVpD36byY0fgWN4qB9cwALGANNSWtuKE7cy2pTyAGO60kW4AwQoG5bgIJhSBL9I10qx7MliMPNRLkQTQEcntd6n8Y52jSeScq9lTdOveP4o9564Wn7HYfg5Zks7Vi53kx87mKKT6LEpf25NevIsO9Knyy3nmzf8QuaIfAyIbBlHKKUHvqH3OlKIGM2vbv1kMhLo1ftuZPMtAOkhtstHsWTWBrpz3NZtjLaEU1XAyzezlI8euWJo3i2pJOGNrvZd2SHRCpsoqh0yz7Rj2ix5NWORZMS2ghBOgtdLb8gTVVeQmNPw5DNdNvItYV2W1i4LtEvc1koL7Jel4TtLXkzaTnzMQVd7to0BuG9f7P8RnnqvAeCLIeHSu9Pj5mCyA9SPNr9pdFDlbKBq3GOfXPWvFlDsqG27JG6OZkSjQkKLlEmSQurqpzw801Jr3AcxtOjjKYPqhwl2aPTX7mdat7kaIlW0qWAaKpDjUUeluEKAEbMkcnNkbYXM5XAHhJFm5PlzQW4r0raYEsYySTrtCnLeHDsTrZLxoTQAjLFMTIFJ3LnuF3o9BtkxZZ4GwpgkRgPjwnOgFEXCEBMcAYv0ONZCXQ9IZ07iKkUoirhlGA7Evq5y7OscsbWFzfwQ0sSyW1ZOEZuKMRnDpBPggyvC9yMVQUM7mWujqajmGJayVINtKjZaNhbVpZJTEeZFUHi8pdIbTTBY1ijNc0bC7K4hpojpHJnEjgVWoTzG918zG066AN31YIFZMmrVs3zvmVrImWU0rDjJQZtIJ9gnZKh7DmMH651noIiIT6qa7VQ3I6fhVCK2kq79bhKUmJbX34JtUOBuo5WGhEQgsVApdVnp7MWATvStxO6uu3ngIUX8b3TzcnrF7xd5ptip";
+
+    public const string MultiByteChars = "动态网自由门 天安門 天安门 法輪功 李洪志 Free Tibet 六四天安門事件 The Tiananmen Square protests of 1989 天安門大屠殺 The Tiananmen Square Massacre 反右派鬥爭 The Anti-Rightist Struggle 大躍進政策 The Great Leap Forward 文化大革命 The Great Proletarian Cultural Revolution 人權 Human Rights 民運 Democratization 自由 Freedom 獨立 Independence 多黨制 Multi-party system 台灣 臺灣 Taiwan Formosa 中華民國 Republic of China 西藏 土伯特 唐古特 Tibet 達賴喇嘛 Dalai Lama 法輪功 Falun Dafa 新疆維吾爾自治區 The Xinjiang Uyghur Autonomous Region 諾貝爾和平獎 Nobel Peace Prize 劉暁波 Liu Xiaobo 民主 言論 思想 反共 反革命 抗議 運動 騷亂 暴亂 騷擾 擾亂 抗暴 平反 維權 示威游行 李洪志 法輪大法 大法弟子 強制斷種 強制堕胎 民族淨化 人體實驗 肅清 胡耀邦 趙紫陽 魏京生 王丹 還政於民 和平演變 激流中國 北京之春 大紀元時報 九評論共産黨 獨裁 專制 壓制 統一 監視 鎮壓 迫害 侵略 掠奪 破壞 拷問 屠殺 活摘器官 誘拐 買賣人口 遊進 走私 毒品 賣淫 春畫 賭博 六合彩 天安門 天安门 法輪功 李洪志 Free Tibet 劉曉波动态网自由门";
+}
