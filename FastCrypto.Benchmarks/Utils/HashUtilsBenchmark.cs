@@ -8,7 +8,7 @@ public class HashUtilsBenchmark
         Constants.String128Char,
         Constants.String1024Char,
         Constants.MultiByteChars)]
-    public string Input;
+    public string Input = string.Empty;
 
     [Benchmark(Baseline = true)]
     public string Sha256() => HashUtils.ComputeDigest(HashAlgorithm.SHA256, Input);
@@ -19,9 +19,11 @@ public class HashUtilsBenchmark
     [Benchmark]
     public string Sha512() => HashUtils.ComputeDigest(HashAlgorithm.SHA512, Input);
 
+#pragma warning disable CS0618
     [Benchmark]
     public string Md5() => HashUtils.ComputeDigest(HashAlgorithm.MD5, Input);
 
     [Benchmark]
     public string Sha1() => HashUtils.ComputeDigest(HashAlgorithm.SHA1, Input);
+#pragma warning restore CS0618
 }

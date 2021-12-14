@@ -53,8 +53,10 @@ public static class HashUtils
         Span<byte> digestBytes = stackalloc byte[GetDigestByteCount(algorithm)];
         _ = algorithm switch
         {
+#pragma warning disable CS0618
             HashAlgorithm.MD5 => MD5.HashData(source, digestBytes),
             HashAlgorithm.SHA1 => SHA1.HashData(source, digestBytes),
+#pragma warning restore CS0618
             HashAlgorithm.SHA256 => SHA256.HashData(source, digestBytes),
             HashAlgorithm.SHA384 => SHA384.HashData(source, digestBytes),
             HashAlgorithm.SHA512 => SHA512.HashData(source, digestBytes),
@@ -66,8 +68,10 @@ public static class HashUtils
 
     private static int GetDigestByteCount(HashAlgorithm algorithm) => algorithm switch
     {
+#pragma warning disable CS0618
         HashAlgorithm.MD5 => 16,
         HashAlgorithm.SHA1 => 20,
+#pragma warning restore CS0618
         HashAlgorithm.SHA256 => 32,
         HashAlgorithm.SHA384 => 48,
         HashAlgorithm.SHA512 => 64,
