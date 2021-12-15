@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using System.Security.Cryptography;
 
 namespace FastCrypto.Utils;
 
@@ -57,7 +58,7 @@ public static class HashUtils
             HashAlgorithm.MD5 => MD5.HashData(source, digestBytes),
             HashAlgorithm.SHA1 => SHA1.HashData(source, digestBytes),
 #pragma warning restore CS0618
-            HashAlgorithm.SHA256 => SHA256.HashData(source, digestBytes),
+            HashAlgorithm.SHA256 => SHA256Arm64.ComputeHash(source, digestBytes),
             HashAlgorithm.SHA384 => SHA384.HashData(source, digestBytes),
             HashAlgorithm.SHA512 => SHA512.HashData(source, digestBytes),
             _ => throw new ArgumentOutOfRangeException(nameof(algorithm))
