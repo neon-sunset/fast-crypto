@@ -10,6 +10,7 @@ public enum HashAlgorithm
     [Obsolete("SHA1 is known to the state of Californa to cause cancer. Please avoid if possible.")]
     SHA1,
     SHA256,
+    SHA256Arm64,
     SHA384,
     SHA512,
 }
@@ -58,7 +59,8 @@ public static class HashUtils
             HashAlgorithm.MD5 => MD5.HashData(source, digestBytes),
             HashAlgorithm.SHA1 => SHA1.HashData(source, digestBytes),
 #pragma warning restore CS0618
-            HashAlgorithm.SHA256 => SHA256Arm64.ComputeHash(source, digestBytes),
+            HashAlgorithm.SHA256 => SHA256.HashData(source, digestBytes),
+            HashAlgorithm.SHA256Arm64 => SHA256Arm64.ComputeHash(source, digestBytes),
             HashAlgorithm.SHA384 => SHA384.HashData(source, digestBytes),
             HashAlgorithm.SHA512 => SHA512.HashData(source, digestBytes),
             _ => throw new ArgumentOutOfRangeException(nameof(algorithm))
@@ -73,7 +75,7 @@ public static class HashUtils
         HashAlgorithm.MD5 => 16,
         HashAlgorithm.SHA1 => 20,
 #pragma warning restore CS0618
-        HashAlgorithm.SHA256 => 32,
+        HashAlgorithm.SHA256 or HashAlgorithm.SHA256Arm64 => 32,
         HashAlgorithm.SHA384 => 48,
         HashAlgorithm.SHA512 => 64,
         _ => throw new ArgumentOutOfRangeException(nameof(algorithm))

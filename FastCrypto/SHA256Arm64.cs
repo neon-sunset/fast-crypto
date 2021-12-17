@@ -10,51 +10,44 @@ public static class SHA256Arm64
 {
     public static int ComputeHash(ReadOnlySpan<byte> data, Span<byte> output)
     {
-        if (Sha256.IsSupported && AdvSimd.IsSupported)
+        Span<byte> padding = stackalloc byte[64]
         {
-            Span<byte> padding = stackalloc byte[64]
-            {
-                0, 0, 0, 0, 0, 0, 0, 0,
-                0, 0, 0, 0, 0, 0, 0, 0,
-                0, 0, 0, 0, 0, 0, 0, 0,
-                0, 0, 0, 0, 0, 0, 0, 0,
-                0, 0, 0, 0, 0, 0, 0, 0,
-                0, 0, 0, 0, 0, 0, 0, 0,
-                0, 0, 0, 0, 0, 0, 0, 0,
-                0, 0, 0, 0, 0, 0, 0, 0
-            };
+            0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0
+        };
 
-            padding[0] = 0x80;
-            BinaryPrimitives.WriteUInt64BigEndian(padding[56..], (ulong)data.Length * 8);
+        padding[0] = 0x80;
+        BinaryPrimitives.WriteUInt64BigEndian(padding[56..], (ulong)data.Length * 8);
 
-            Span<uint> state = stackalloc uint[8]
-            {
-                0x6a09e667,
-                0xbb67ae85,
-                0x3c6ef372,
-                0xa54ff53a,
-                0x510e527f,
-                0x9b05688c,
-                0x1f83d9ab,
-                0x5be0cd19,
-            };
-
-            Block(state, data);
-            Block(state, padding);
-
-            for (int i = 0; i < state.Length; ++i)
-            {
-                state[i] = BinaryPrimitives.ReverseEndianness(state[i]);
-            }
-
-            MemoryMarshal.Cast<uint, byte>(state).CopyTo(output);
-
-            return output.Length;
-        }
-        else
+        Span<uint> state = stackalloc uint[8]
         {
-            return System.Security.Cryptography.SHA256.HashData(data, output);
+            0x6a09e667,
+            0xbb67ae85,
+            0x3c6ef372,
+            0xa54ff53a,
+            0x510e527f,
+            0x9b05688c,
+            0x1f83d9ab,
+            0x5be0cd19,
+        };
+
+        Block(state, data);
+        Block(state, padding);
+
+        for (int i = 0; i < state.Length; ++i)
+        {
+            state[i] = BinaryPrimitives.ReverseEndianness(state[i]);
         }
+
+        MemoryMarshal.Cast<uint, byte>(state).CopyTo(output);
+
+        return output.Length;
     }
 
     private static void Block(Span<uint> state, ReadOnlySpan<byte> data)
