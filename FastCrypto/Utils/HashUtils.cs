@@ -10,7 +10,6 @@ public enum HashAlgorithm
     [Obsolete("SHA1 is known to the state of Californa to cause cancer. Please avoid if possible.")]
     SHA1,
     SHA256,
-    SHA256Arm64,
     SHA384,
     SHA512,
 }
@@ -50,34 +49,22 @@ public static class HashUtils
         }
     }
 
+#pragma warning disable CS0618
     public static string ComputeDigest(HashAlgorithm algorithm, ReadOnlySpan<byte> source, bool useLowercase = true)
     {
-        Span<byte> digestBytes = stackalloc byte[GetDigestByteCount(algorithm)];
-        _ = algorithm switch
+        Span<byte> digestBytes = stackalloc byte[64];
+        var digestByteCount = algorithm switch
         {
-#pragma warning disable CS0618
             HashAlgorithm.MD5 => MD5.HashData(source, digestBytes),
             HashAlgorithm.SHA1 => SHA1.HashData(source, digestBytes),
-#pragma warning restore CS0618
             HashAlgorithm.SHA256 => SHA256.HashData(source, digestBytes),
-            HashAlgorithm.SHA256Arm64 => SHA256Arm64.ComputeHash(source, digestBytes),
             HashAlgorithm.SHA384 => SHA384.HashData(source, digestBytes),
             HashAlgorithm.SHA512 => SHA512.HashData(source, digestBytes),
             _ => throw new ArgumentOutOfRangeException(nameof(algorithm))
         };
 
-        return useLowercase ? Convert.ToHexString(digestBytes).ToLower() : Convert.ToHexString(digestBytes);
+        var digestHexString = Convert.ToHexString(digestBytes[..digestByteCount]);
+        return useLowercase ? digestHexString.ToLowerInvariant() : digestHexString;
     }
-
-    private static int GetDigestByteCount(HashAlgorithm algorithm) => algorithm switch
-    {
-#pragma warning disable CS0618
-        HashAlgorithm.MD5 => 16,
-        HashAlgorithm.SHA1 => 20,
 #pragma warning restore CS0618
-        HashAlgorithm.SHA256 or HashAlgorithm.SHA256Arm64 => 32,
-        HashAlgorithm.SHA384 => 48,
-        HashAlgorithm.SHA512 => 64,
-        _ => throw new ArgumentOutOfRangeException(nameof(algorithm))
-    };
 }

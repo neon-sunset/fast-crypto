@@ -1,10 +1,11 @@
+using System.Runtime.CompilerServices;
 using System.Runtime.Intrinsics.Arm;
 
 namespace FastCrypto.Benchmarks.Utils;
 
 public class HashUtilsThroughputBenchmark
 {
-    public int IterationCount { get; init; } = 10000;
+    public const int IterationCount = 10000;
 
     public void Execute()
     {
@@ -17,53 +18,87 @@ public class HashUtilsThroughputBenchmark
         var inputString = File.ReadAllText("Input.txt");
         var inputBytes = Encoding.UTF8.GetBytes(inputString);
 
-        Console.WriteLine("\"From Bytes\" loop start!");
+        Benchmark(inputBytes, static input => Sha256Loop(input), nameof(Sha256Loop));
+        Benchmark(inputBytes, static input => Sha256Arm64Loop(input), nameof(Sha256Arm64Loop));
+        Benchmark(inputBytes, static input => Sha256HashUtilsLoop(input), nameof(Sha256HashUtilsLoop));
+        Benchmark(inputString, static input => Sha256HashUtilsDecodeLoop(input), nameof(Sha256HashUtilsDecodeLoop));
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
+    private static void Benchmark<TInput, TOutput>(TInput input, Func<TInput, TOutput> loop, string name)
+        where TInput : class
+        where TOutput : class
+    {
+        Console.Write($"{name} ST! ");
         var stopwatch = Stopwatch.StartNew();
-        var output = Sha256Loop(inputBytes);
+        var output = loop(input);
         stopwatch.Stop();
-        Console.WriteLine($"Hash: {output} MB/s: {IterationCount / ((decimal)stopwatch.ElapsedMilliseconds / 1000)}");
 
-        Console.WriteLine("\"From Bytes ARM64\" loop start!");
-        stopwatch.Restart();
-        output = Sha256Arm64Loop(inputBytes);
-        stopwatch.Stop();
-        Console.WriteLine($"Hash ARM64: {output} MB/s: {IterationCount / ((decimal)stopwatch.ElapsedMilliseconds / 1000)}");
+        var stThroughput = (float)(IterationCount / ((decimal)stopwatch.ElapsedMilliseconds / 1000));
+        Console.Write($"MiB/s: {stThroughput}\n");
 
-        Console.WriteLine("\"From String With Decode\" loop start!");
+        var inputs = Enumerable
+            .Range(0, Environment.ProcessorCount)
+            .Select(num => (input, loop))
+            .ToArray();
+
+        Console.Write($"{name} MT! ");
         stopwatch.Restart();
-        output = DecodeAndSha256Loop(inputString);
+        var mtResult = Multithreaded(inputs);
         stopwatch.Stop();
-        Console.WriteLine($"Decode+Hash: {output} MB/s: {IterationCount / ((decimal)stopwatch.ElapsedMilliseconds / 1000)}");
+
+        var mtThroughput = (float)(IterationCount / ((decimal)stopwatch.ElapsedMilliseconds / 1000) * Environment.ProcessorCount);
+        Console.Write($"MiB/s: {mtThroughput} Scaling factor: {mtThroughput / stThroughput}\n\n");
     }
 
-    private string DecodeAndSha256Loop(string input)
+    private static bool Multithreaded<TInput, TOutput>((TInput Input, Func<TInput, TOutput> Loop)[] inputs) =>
+        Parallel
+            .ForEach(inputs, static item => item.Loop(item.Input))
+            .IsCompleted;
+
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
+    private static byte[] Sha256Arm64Loop(ReadOnlySpan<byte> inputBytes)
     {
-        var output = string.Empty;
+        Span<byte> destination = stackalloc byte[32];
         for (var i = 0; i < IterationCount; i++)
         {
-            output = HashUtils.ComputeDigest(HashAlgorithm.SHA256, input);
+            _ = FastCrypto.SHA256.HashData(inputBytes, destination);
+        }
+
+        return destination.ToArray();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
+    private static byte[] Sha256Loop(ReadOnlySpan<byte> inputBytes)
+    {
+        Span<byte> destination = stackalloc byte[32];
+        for (var i = 0; i < IterationCount; i++)
+        {
+            _ = System.Security.Cryptography.SHA256.HashData(inputBytes, destination);
+        }
+
+        return destination.ToArray();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
+    private static string Sha256HashUtilsLoop(ReadOnlySpan<byte> inputBytes)
+    {
+        string output = string.Empty;
+        for (var i = 0; i < IterationCount; i++)
+        {
+            output = HashUtils.ComputeDigest(HashAlgorithm.SHA256, inputBytes, useLowercase: false);
         }
 
         return output;
     }
 
-    private string Sha256Arm64Loop(ReadOnlySpan<byte> inputBytes)
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
+    private static string Sha256HashUtilsDecodeLoop(string input)
     {
-        var output = string.Empty;
+        string output = string.Empty;
         for (var i = 0; i < IterationCount; i++)
         {
-            output = HashUtils.ComputeDigest(HashAlgorithm.SHA256Arm64, inputBytes);
-        }
-
-        return output;
-    }
-
-    private string Sha256Loop(ReadOnlySpan<byte> inputBytes)
-    {
-        var output = string.Empty;
-        for (var i = 0; i < IterationCount; i++)
-        {
-            output = HashUtils.ComputeDigest(HashAlgorithm.SHA256, inputBytes);
+            output = HashUtils.ComputeDigest(HashAlgorithm.SHA256, input, useLowercase: false);
         }
 
         return output;

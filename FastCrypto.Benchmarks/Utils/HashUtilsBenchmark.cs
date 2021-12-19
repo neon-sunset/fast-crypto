@@ -14,7 +14,7 @@ public class HashUtilsBenchmark
     public string Sha256() => HashUtils.ComputeDigest(HashAlgorithm.SHA256, Input, false);
 
     [Benchmark]
-    public string Sha256Intrinsics() => HashUtils.ComputeDigest(HashAlgorithm.SHA256Arm64, Input, false);
+    public string Sha256Intrinsics() => HashUtils.ComputeDigest(HashAlgorithm.SHA256, Input, false);
     
     /*
     [Benchmark]

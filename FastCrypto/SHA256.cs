@@ -3,13 +3,27 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.Arm;
+using BuiltInSHA256 = System.Security.Cryptography.SHA256;
 
 namespace FastCrypto;
 
-public static class SHA256Arm64
+public static class SHA256
 {
-    public static int ComputeHash(ReadOnlySpan<byte> data, Span<byte> output)
+    private const int DigestLengthInBytes = 32;
+
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
+    public static int HashData(ReadOnlySpan<byte> source, Span<byte> destination)
     {
+        if (!Sha256.IsSupported || !AdvSimd.IsSupported)
+        {
+            return BuiltInSHA256.HashData(source, destination);
+        }
+
+        if (destination.Length < DigestLengthInBytes)
+        {
+            throw new ArgumentException("Destination buffer is smaller than digest size of 32 bytes", nameof(destination));
+        }
+
         Span<byte> padding = stackalloc byte[64]
         {
             0, 0, 0, 0, 0, 0, 0, 0,
@@ -23,7 +37,7 @@ public static class SHA256Arm64
         };
 
         padding[0] = 0x80;
-        BinaryPrimitives.WriteUInt64BigEndian(padding[56..], (ulong)data.Length * 8);
+        BinaryPrimitives.WriteUInt64BigEndian(padding[56..], (ulong)source.Length * 8);
 
         Span<uint> state = stackalloc uint[8]
         {
@@ -37,7 +51,7 @@ public static class SHA256Arm64
             0x5be0cd19,
         };
 
-        Block(state, data);
+        Block(state, source);
         Block(state, padding);
 
         for (int i = 0; i < state.Length; ++i)
@@ -45,11 +59,12 @@ public static class SHA256Arm64
             state[i] = BinaryPrimitives.ReverseEndianness(state[i]);
         }
 
-        MemoryMarshal.Cast<uint, byte>(state).CopyTo(output);
+        MemoryMarshal.Cast<uint, byte>(state).CopyTo(destination);
 
-        return output.Length;
+        return DigestLengthInBytes;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private static void Block(Span<uint> state, ReadOnlySpan<byte> data)
     {
         Span<byte> msg = stackalloc byte[64];
