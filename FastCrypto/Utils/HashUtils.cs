@@ -5,9 +5,9 @@ namespace FastCrypto.Utils;
 
 public enum HashAlgorithm
 {
-    [Obsolete("MD5 is known to the state of Californa to cause cancer. Please avoid if possible.")]
+    [Obsolete("MD5 is known to the state of California to cause cancer. Please avoid if possible.")]
     MD5,
-    [Obsolete("SHA1 is known to the state of Californa to cause cancer. Please avoid if possible.")]
+    [Obsolete("SHA1 is known to the state of California to cause cancer. Please avoid if possible.")]
     SHA1,
     SHA256,
     SHA384,
@@ -26,26 +26,33 @@ public static class HashUtils
 
     public static string ComputeDigest(HashAlgorithm algorithm, ReadOnlySpan<char> source, bool useLowercase = true)
     {
-        const int StackAllocLimitInBytes = 1024;
-        byte[]? toReturn = null;
-
-        try
+        if (source.Length <= 1024 * 1024 * 10)
         {
-            var sourceByteCount = Encoding.UTF8.GetByteCount(source);
-            var sourceBytes = sourceByteCount <= StackAllocLimitInBytes
-                ? stackalloc byte[sourceByteCount]
-                : (toReturn = ArrayPool<byte>.Shared.Rent(sourceByteCount));
+            const int StackAllocLimitInBytes = 1024;
+            byte[]? toReturn = null;
 
-            _ = Encoding.UTF8.GetBytes(source, sourceBytes);
-
-            return ComputeDigest(algorithm, sourceBytes[..sourceByteCount], useLowercase);
-        }
-        finally
-        {
-            if (toReturn is not null)
+            try
             {
-                ArrayPool<byte>.Shared.Return(toReturn);
+                var sourceByteCount = Encoding.UTF8.GetByteCount(source);
+                var sourceBytes = sourceByteCount <= StackAllocLimitInBytes
+                    ? stackalloc byte[sourceByteCount]
+                    : (toReturn = ArrayPool<byte>.Shared.Rent(sourceByteCount));
+
+                _ = Encoding.UTF8.GetBytes(source, sourceBytes);
+
+                return ComputeDigest(algorithm, sourceBytes[..sourceByteCount], useLowercase);
             }
+            finally
+            {
+                if (toReturn is not null)
+                {
+                    ArrayPool<byte>.Shared.Return(toReturn);
+                }
+            }
+        }
+        else
+        {
+            throw new ArgumentOutOfRangeException(nameof(source));
         }
     }
 

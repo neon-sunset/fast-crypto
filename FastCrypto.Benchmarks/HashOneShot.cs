@@ -1,9 +1,9 @@
 using BuiltInSHA256 = System.Security.Cryptography.SHA256;
 
-namespace FastCrypto.Benchmarks.SHA256;
+namespace FastCrypto.Benchmarks;
 
 [MemoryDiagnoser]
-public class OneShot
+public class HashOneShot
 {
     [ParamsSource(nameof(Params))]
     public byte[] Input;

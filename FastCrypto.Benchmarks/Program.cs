@@ -1,7 +1,18 @@
-﻿using BenchmarkDotNet.Running;
+﻿using FastCrypto.Benchmarks;
 
-using FastCrypto.Benchmarks.Utils;
+Console.WriteLine("Specify input file path (default: \"Input.txt\"):");
+var throughputBenchmark = new HashThroughput(Console.ReadLine());
 
-new HashUtilsThroughputBenchmark().Execute();
+SelectCase:
+Console.WriteLine("Benchmark or stress-test? B/S: ");
+var resultCode = (char)(Console.Read() | ' ') switch // bitwise to lowercase
+{
+    'b' => throughputBenchmark.Benchmark(),
+    's' => throughputBenchmark.Stress(),
+    _ => 1
+};
 
-// BenchmarkRunner.Run<FastCrypto.Benchmarks.SHA256.OneShot>();
+if (resultCode is 1)
+{
+    goto SelectCase;
+}
