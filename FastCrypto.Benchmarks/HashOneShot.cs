@@ -6,31 +6,32 @@ namespace FastCrypto.Benchmarks;
 public class HashOneShot
 {
     [ParamsSource(nameof(Params))]
-    public byte[] Input;
+    public byte[] Input = Array.Empty<byte>();
 
     public IEnumerable<byte[]> Params => new[]
     {
         Encoding.UTF8.GetBytes(Constants.String32Char),
         Encoding.UTF8.GetBytes(Constants.String128Char),
         Encoding.UTF8.GetBytes(Constants.String1024Char),
-        Encoding.UTF8.GetBytes(Constants.MultiByteChars)
+        Encoding.UTF8.GetBytes(Constants.MultiByteChars),
+        Encoding.UTF8.GetBytes(File.ReadAllText("Input.txt"))
     };
 
     [Benchmark(Baseline = true)]
-    public byte[] SHA256CoreLib()
+    public byte SHA256CoreLib()
     {
-        var destination = new byte[32];
+        Span<byte> destination = stackalloc byte[32];
         _ = BuiltInSHA256.HashData(Input, destination);
 
-        return destination;
+        return destination[^1];
     }
 
     [Benchmark]
-    public byte[] SHA256New()
+    public byte SHA256New()
     {
-        var destination = new byte[32];
-        _ = FastCrypto.SHA256.HashData(Input, destination);
+        Span<byte> destination = stackalloc byte[32];
+        _ = SHA256.HashData(Input, destination);
 
-        return destination;
+        return destination[^1];
     }
 }

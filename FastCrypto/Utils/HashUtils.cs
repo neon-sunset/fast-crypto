@@ -1,5 +1,6 @@
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
+using Cysharp.Collections;
 
 namespace FastCrypto.Utils;
 
@@ -26,34 +27,35 @@ public static class HashUtils
 
     public static string ComputeDigest(HashAlgorithm algorithm, ReadOnlySpan<char> source, bool useLowercase = true)
     {
-        if (source.Length <= 1024 * 1024 * 10)
+        const int StackAllocThreshold = 1024;
+        const int ArrayPoolThreshold = 1024 * 1024 * 10;
+
+        byte[]? toReturn = null;
+
+        var sourceByteCount = Encoding.UTF8.GetByteCount(source);
+        Span<byte> sourceBytes = stackalloc byte[StackAllocThreshold];
+        if (sourceByteCount is > StackAllocThreshold and < ArrayPoolThreshold)
         {
-            const int StackAllocLimitInBytes = 1024;
-            byte[]? toReturn = null;
-
-            try
-            {
-                var sourceByteCount = Encoding.UTF8.GetByteCount(source);
-                var sourceBytes = sourceByteCount <= StackAllocLimitInBytes
-                    ? stackalloc byte[sourceByteCount]
-                    : (toReturn = ArrayPool<byte>.Shared.Rent(sourceByteCount));
-
-                _ = Encoding.UTF8.GetBytes(source, sourceBytes);
-
-                return ComputeDigest(algorithm, sourceBytes[..sourceByteCount], useLowercase);
-            }
-            finally
-            {
-                if (toReturn is not null)
-                {
-                    ArrayPool<byte>.Shared.Return(toReturn);
-                }
-            }
+            toReturn = ArrayPool<byte>.Shared.Rent(sourceByteCount);
+            sourceBytes = toReturn;
         }
-        else
+        else if (sourceByteCount > ArrayPoolThreshold)
         {
-            throw new ArgumentOutOfRangeException(nameof(source));
+            using var nativeMemoryBuffer = new NativeMemoryArray<byte>(sourceByteCount, skipZeroClear: true);
+            sourceBytes = nativeMemoryBuffer.AsSpan();
         }
+
+        sourceBytes = sourceBytes[..sourceByteCount];
+
+        _ = Encoding.UTF8.GetBytes(source, sourceBytes);
+        var digest = ComputeDigest(algorithm, sourceBytes, useLowercase);
+
+        if (toReturn is not null)
+        {
+            ArrayPool<byte>.Shared.Return(toReturn);
+        }
+
+        return digest;
     }
 
 #pragma warning disable CS0618

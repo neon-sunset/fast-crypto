@@ -63,7 +63,7 @@ public class HashThroughput
         var processorCount = Environment.ProcessorCount;
         var inputs = Enumerable
             .Range(0, processorCount)
-            .Select(num => (input, loop))
+            .Select(_ => (input, loop))
             .ToArray();
 
         stopwatch.Restart();
@@ -73,7 +73,12 @@ public class HashThroughput
         var mtThroughput = (float)(_iterationCount / stopwatch.Elapsed.TotalSeconds * processorCount * (double)_inputMiBCount);
         var scalingFactor = mtThroughput / stThroughput;
         var scalingFactorPerCore = mtThroughput / stThroughput / processorCount;
+        var hash = stResult is byte[] hashBytes
+            ? Convert.ToHexString(hashBytes)
+            : stResult as string;
+
         Console.WriteLine($"MT {mtThroughput} MiB/s, scaling factor {scalingFactor}, {scalingFactorPerCore} per core");
+        Console.WriteLine($"Hash: {hash!}");
     }
 
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
@@ -84,7 +89,7 @@ public class HashThroughput
         var processorCount = Environment.ProcessorCount;
         var inputs = Enumerable
             .Range(0, processorCount)
-            .Select(num => (input, loop))
+            .Select(_ => (input, loop))
             .ToArray();
 
         var stopwatch = Stopwatch.StartNew();

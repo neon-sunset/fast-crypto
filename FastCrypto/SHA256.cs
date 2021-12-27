@@ -14,7 +14,14 @@ public static class SHA256
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public static int HashData(ReadOnlySpan<byte> source, Span<byte> destination)
     {
+        const int OptimalSizeThreshold = 1024 * 1024;
+
         if (!Sha256.IsSupported || !AdvSimd.IsSupported)
+        {
+            return BuiltInSHA256.HashData(source, destination);
+        }
+
+        if (source.Length > OptimalSizeThreshold) // FIXME: Improve performance on large payloads and fix incorrect output
         {
             return BuiltInSHA256.HashData(source, destination);
         }
@@ -37,7 +44,7 @@ public static class SHA256
         };
 
         padding[0] = 0x80;
-        BinaryPrimitives.WriteUInt64BigEndian(padding[56..], (ulong)source.Length * 8);
+        BinaryPrimitives.WriteUInt64BigEndian(padding[56..], (ulong)source.Length * 8); // FIXME: Invalid behavior when payload size is too big
 
         Span<uint> state = stackalloc uint[8]
         {
