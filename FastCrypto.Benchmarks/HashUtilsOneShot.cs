@@ -1,14 +1,16 @@
+using FastCrypto.Extensions;
+
 namespace FastCrypto.Benchmarks;
 
 [MemoryDiagnoser]
-public class HasUtilsOneShot
+public class HashUtilsOneShot
 {
     // private static readonly string Big = File.ReadAllText("big.pdf");
 
     [ParamsSource(nameof(Params))]
-    public string? Input = string.Empty;
+    public string Input = string.Empty;
 
-    public IEnumerable<string?> Params => new[]
+    public IEnumerable<string> Params => new[]
     {
         Constants.String32Char,
         Constants.String128Char,
@@ -19,5 +21,12 @@ public class HasUtilsOneShot
     };
 
     [Benchmark(Baseline = true)]
-    public string ComputeDigest() => HashUtils.ComputeDigest(HashAlgorithm.SHA256, Input!/* ?? Big */, useLowercase: false);
+    public string ComputeDigest() => Digest
+        .ComputeHex(HashAlgorithm.SHA256, Input/* ?? Big*/, useLowercase: false)
+        .ToLowerInvariant();
+
+    [Benchmark]
+    public string ComputeDigestToLowerInPlace() => Digest
+        .ComputeHex(HashAlgorithm.SHA256, Input/* ?? Big*/, useLowercase: false)
+        .ToLowerAlphanumeric();
 }

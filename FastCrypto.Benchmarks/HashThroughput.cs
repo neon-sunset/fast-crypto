@@ -1,5 +1,6 @@
 using System.Runtime.CompilerServices;
 using System.Runtime.Intrinsics.Arm;
+using FastCrypto.Algorithms;
 
 namespace FastCrypto.Benchmarks;
 
@@ -74,7 +75,7 @@ public class HashThroughput
         var scalingFactor = mtThroughput / stThroughput;
         var scalingFactorPerCore = mtThroughput / stThroughput / processorCount;
         var hash = stResult is byte[] hashBytes
-            ? Convert.ToHexString(hashBytes)
+            ? Convert.ToHexString(hashBytes).ToLowerInvariant()
             : stResult as string;
 
         Console.WriteLine($"MT {mtThroughput} MiB/s, scaling factor {scalingFactor}, {scalingFactorPerCore} per core");
@@ -139,7 +140,7 @@ public class HashThroughput
         string output = string.Empty;
         for (var i = 0; i < _iterationCount; i++)
         {
-            output = HashUtils.ComputeDigest(HashAlgorithm.SHA256, inputBytes, useLowercase: false);
+            output = Digest.ComputeHex(HashAlgorithm.SHA256, inputBytes, useLowercase: true);
         }
 
         return output;
@@ -151,7 +152,7 @@ public class HashThroughput
         string output = string.Empty;
         for (var i = 0; i < _iterationCount; i++)
         {
-            output = HashUtils.ComputeDigest(HashAlgorithm.SHA256, input, useLowercase: false);
+            output = Digest.ComputeHex(HashAlgorithm.SHA256, input, useLowercase: true);
         }
 
         return output;
