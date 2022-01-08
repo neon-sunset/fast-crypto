@@ -1,3 +1,5 @@
+using FastCrypto.Algorithms;
+
 using BuiltInSHA256 = System.Security.Cryptography.SHA256;
 
 namespace FastCrypto.Benchmarks;
