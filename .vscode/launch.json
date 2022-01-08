@@ -12,7 +12,7 @@
             "program": "${workspaceFolder}/FastCrypto.Benchmarks/bin/Debug/net6.0/FastCrypto.Benchmarks.dll",
             "args": [],
             "cwd": "${workspaceFolder}/FastCrypto.Benchmarks",
-            "console": "internalConsole",
+            "console": "integratedTerminal",
             "stopAtEntry": false
         },
         {

@@ -12,4 +12,8 @@
     <PackageReference Include="NativeMemoryArray" Version="1.2.0" />
   </ItemGroup>
 
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+  </PropertyGroup>
+
 </Project>

@@ -4,7 +4,6 @@ using BuiltInSHA256 = System.Security.Cryptography.SHA256;
 
 namespace FastCrypto.Benchmarks;
 
-[MemoryDiagnoser]
 public class HashOneShot
 {
     [ParamsSource(nameof(Params))]
@@ -13,7 +12,13 @@ public class HashOneShot
     public IEnumerable<byte[]> Params => new[]
     {
         Encoding.UTF8.GetBytes(Constants.String32Char),
+        Encoding.UTF8.GetBytes(Constants.String128Char[..69]),
         Encoding.UTF8.GetBytes(Constants.String128Char),
+        Encoding.UTF8.GetBytes(Constants.String1024Char[..256]),
+        Encoding.UTF8.GetBytes(Constants.String1024Char[..420]),
+        Encoding.UTF8.GetBytes(Constants.String1024Char[..512]),
+        Encoding.UTF8.GetBytes(Constants.String1024Char[..666]),
+        Encoding.UTF8.GetBytes(Constants.String1024Char[..896]),
         Encoding.UTF8.GetBytes(Constants.String1024Char),
         Encoding.UTF8.GetBytes(Constants.MultiByteChars),
         Encoding.UTF8.GetBytes(File.ReadAllText("Input.txt"))
@@ -25,7 +30,7 @@ public class HashOneShot
         Span<byte> destination = stackalloc byte[32];
         _ = BuiltInSHA256.HashData(Input, destination);
 
-        return destination[^1];
+        return destination[0];
     }
 
     [Benchmark]
@@ -34,6 +39,6 @@ public class HashOneShot
         Span<byte> destination = stackalloc byte[32];
         _ = SHA256.HashData(Input, destination);
 
-        return destination[^1];
+        return destination[0];
     }
 }
