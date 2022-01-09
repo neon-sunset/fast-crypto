@@ -8,6 +8,7 @@
 - [ ] HMAC variants
 - [ ] BLAKE2
 - [ ] BLAKE3
+- [ ] Poly1305
 ...
 
 ## Streaming Hashing API
@@ -17,3 +18,7 @@
 
 ## Cryptography
 - [ ] Rijndael (GCM, CBC, ECB, etc.)
+- [ ] ChaCha20, XChaCha20
+
+## Misc
+- [ ] Easy combination of (X)ChaCha20 with supported hash functions to achieve authenticated encryption modes

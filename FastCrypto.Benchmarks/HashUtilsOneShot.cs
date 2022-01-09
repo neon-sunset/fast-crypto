@@ -3,6 +3,7 @@ using FastCrypto.Extensions;
 namespace FastCrypto.Benchmarks;
 
 [MemoryDiagnoser]
+[DisassemblyDiagnoser(maxDepth: 3, printSource: true, exportCombinedDisassemblyReport: true)]
 public class HashUtilsOneShot
 {
     // private static readonly string Big = File.ReadAllText("big.pdf");
