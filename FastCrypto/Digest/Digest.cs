@@ -71,45 +71,41 @@ public static partial class Digest
 
     public static int ComputeBytes(HashAlgorithm algorithm, ReadOnlySpan<char> source, Span<byte> destination)
     {
-        NativeMemoryArray<byte>? nativeMemoryBuffer = null;
+        byte[]? toReturnPooled = null;
+        NativeMemoryArray<byte>? toReturnNativeMemory = null;
 
-        try
+        var sourceByteCount = Encoding.UTF8.GetByteCount(source);
+        var sourceBytes = (stackalloc byte[0]);
+        if (sourceByteCount <= Constants.StackAllocLimitBytes)
         {
-            byte[]? toReturn = null;
-
-            var sourceByteCount = Encoding.UTF8.GetByteCount(source);
-            var sourceBytes = (stackalloc byte[0]);
-            if (sourceByteCount <= Constants.StackAllocLimitBytes)
-            {
-                sourceBytes = stackalloc byte[Constants.StackAllocLimitBytes];
-            }
-            else if (sourceByteCount <= Constants.ArrayPoolLimitBytes)
-            {
-                toReturn = ArrayPool<byte>.Shared.Rent(sourceByteCount);
-                sourceBytes = toReturn;
-            }
-            else
-            {
-                nativeMemoryBuffer = new NativeMemoryArray<byte>(sourceByteCount, skipZeroClear: true, addMemoryPressure: true);
-                sourceBytes = nativeMemoryBuffer.AsSpan();
-            }
-
-            sourceBytes = sourceBytes[..sourceByteCount];
-
-            _ = Encoding.UTF8.GetBytes(source, sourceBytes);
-            var digestByteCount = ComputeBytes(algorithm, sourceBytes, destination);
-
-            if (toReturn is not null)
-            {
-                ArrayPool<byte>.Shared.Return(toReturn);
-            }
-
-            return digestByteCount;
+            sourceBytes = stackalloc byte[Constants.StackAllocLimitBytes];
         }
-        finally
+        else if (sourceByteCount <= Constants.ArrayPoolLimitBytes)
         {
-            nativeMemoryBuffer?.Dispose();
+            toReturnPooled = ArrayPool<byte>.Shared.Rent(sourceByteCount);
+            sourceBytes = toReturnPooled;
         }
+        else
+        {
+            toReturnNativeMemory = new NativeMemoryArray<byte>(sourceByteCount, skipZeroClear: true, addMemoryPressure: true);
+            sourceBytes = toReturnNativeMemory.AsSpan();
+        }
+
+        sourceBytes = sourceBytes[..sourceByteCount];
+
+        _ = Encoding.UTF8.GetBytes(source, sourceBytes);
+        var digestByteCount = ComputeBytes(algorithm, sourceBytes, destination);
+
+        if (toReturnPooled is not null)
+        {
+            ArrayPool<byte>.Shared.Return(toReturnPooled);
+        }
+        else if (toReturnNativeMemory is not null)
+        {
+            toReturnNativeMemory.Dispose();
+        }
+
+        return digestByteCount;
     }
 
 #pragma warning disable CS0618
