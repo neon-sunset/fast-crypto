@@ -71,39 +71,24 @@ public static partial class Digest
 
     public static int ComputeBytes(HashAlgorithm algorithm, ReadOnlySpan<char> source, Span<byte> destination)
     {
-        byte[]? toReturnPooled = null;
-        NativeMemoryArray<byte>? toReturnNativeMemory = null;
+        byte[]? pooledArray = null;
+        NativeMemoryArray<byte>? nativeMemoryArray = null;
 
         var sourceByteCount = Encoding.UTF8.GetByteCount(source);
-        var sourceBytes = (stackalloc byte[0]);
-        if (sourceByteCount <= Constants.StackAllocLimitBytes)
+        var sourceBytes = sourceByteCount switch
         {
-            sourceBytes = stackalloc byte[Constants.StackAllocLimitBytes];
-        }
-        else if (sourceByteCount <= Constants.ArrayPoolLimitBytes)
-        {
-            toReturnPooled = ArrayPool<byte>.Shared.Rent(sourceByteCount);
-            sourceBytes = toReturnPooled;
-        }
-        else
-        {
-            toReturnNativeMemory = new NativeMemoryArray<byte>(sourceByteCount, skipZeroClear: true, addMemoryPressure: true);
-            sourceBytes = toReturnNativeMemory.AsSpan();
-        }
+            <= Constants.StackAllocLimitBytes => stackalloc byte[Constants.StackAllocLimitBytes],
+            <= Constants.ArrayPoolLimitBytes => pooledArray = ArrayExtensions.RentPooled(sourceByteCount),
+            _ => (nativeMemoryArray = ArrayExtensions.AllocNative(sourceByteCount)).AsSpan()
+        };
 
         sourceBytes = sourceBytes[..sourceByteCount];
 
         _ = Encoding.UTF8.GetBytes(source, sourceBytes);
         var digestByteCount = ComputeBytes(algorithm, sourceBytes, destination);
 
-        if (toReturnPooled is not null)
-        {
-            ArrayPool<byte>.Shared.Return(toReturnPooled);
-        }
-        else if (toReturnNativeMemory is not null)
-        {
-            toReturnNativeMemory.Dispose();
-        }
+        pooledArray?.Return();
+        nativeMemoryArray?.Free();
 
         return digestByteCount;
     }
