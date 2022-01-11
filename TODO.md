@@ -8,7 +8,7 @@
 - [ ] HMAC variants
 - [ ] BLAKE2
 - [ ] BLAKE3
-- [ ] Poly1305
+- [ ] Poly1305 MAC
 ...
 
 ## Streaming Hashing API
@@ -21,4 +21,4 @@
 - [ ] ChaCha20, XChaCha20
 
 ## Misc
-- [ ] Easy combination of (X)ChaCha20 with supported hash functions to achieve authenticated encryption modes
+- [ ] Easy combination of (X)ChaCha20 with supported hmac functions to achieve authenticated encryption modes
