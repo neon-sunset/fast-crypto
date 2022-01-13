@@ -11,7 +11,7 @@ namespace FastCrypto.Algorithms;
 public static class SHA256
 {
     private const int DigestByteCount = 32;
-    private const int SupportedByteCountThreshold = 4096 * 1024;
+    private const int SupportedByteCountThreshold = 4096;
 
     private static readonly Vector128<uint> K0 = Vector128.Create(0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5);
     private static readonly Vector128<uint> K1 = Vector128.Create(0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5);
@@ -103,10 +103,12 @@ public static class SHA256
             var save_abcd = hash_abcd;
             var save_efgh = hash_efgh;
 
-            for (int i = 0; i < 8; i++)
+            for (int i = 0; i < 16; i += 4)
             {
                 uint_msg[i] = BinaryPrimitives.ReverseEndianness(uint_data[i]);
                 uint_msg[i + 1] = BinaryPrimitives.ReverseEndianness(uint_data[i + 1]);
+                uint_msg[i + 2] = BinaryPrimitives.ReverseEndianness(uint_data[i + 2]);
+                uint_msg[i + 3] = BinaryPrimitives.ReverseEndianness(uint_data[i + 3]);
             }
 
             var msg0 = Unsafe.ReadUnaligned<Vector128<uint>>(ref msg[0]);
@@ -114,13 +116,11 @@ public static class SHA256
             var msg2 = Unsafe.ReadUnaligned<Vector128<uint>>(ref msg[32]);
             var msg3 = Unsafe.ReadUnaligned<Vector128<uint>>(ref msg[48]);
 
-            Vector128<uint> wk, temp_abcd;
-
             // Rounds 0-3
-            wk = AdvSimd.Add(msg0, K0);
+            Vector128<uint> wk = AdvSimd.Add(msg0, K0);
             msg0 = Sha256.ScheduleUpdate0(msg0, msg1);
             msg0 = Sha256.ScheduleUpdate1(msg0, msg2, msg3);
-            temp_abcd = hash_abcd;
+            Vector128<uint> temp_abcd = hash_abcd;
             hash_abcd = Sha256.HashUpdate1(hash_abcd, hash_efgh, wk);
             hash_efgh = Sha256.HashUpdate2(hash_efgh, temp_abcd, wk);
 

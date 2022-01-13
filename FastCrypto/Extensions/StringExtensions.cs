@@ -20,41 +20,35 @@ internal static class StringExtensions
         var mask = new Vector<ushort>(32);
         var vectorSize = Vector<ushort>.Count;
 
-        var inBytes = MemoryMarshal.Cast<char, ushort>(input);
-        var outBytes = MemoryMarshal.Cast<char, ushort>(output);
+        var inChars = MemoryMarshal.Cast<char, ushort>(input);
+        var outChars = MemoryMarshal.Cast<char, ushort>(output);
 
         var unrollFactor = vectorSize * 4;
-        Debug.Assert(outBytes.Length % unrollFactor == 0);
+        Debug.Assert(outChars.Length % unrollFactor == 0);
 
-        for (var i = 0; i < outBytes.Length; i += unrollFactor)
+        for (var i = 0; i < outChars.Length; i += unrollFactor)
         {
             var start1 = i;
             var start2 = i + vectorSize;
             var start3 = i + (vectorSize * 2);
             var start4 = i + (vectorSize * 3);
-            var end4 = start4 + vectorSize;
-
-            var chars1 = inBytes[start1..start2];
-            var chars2 = inBytes[start2..start3];
-            var chars3 = inBytes[start3..start4];
-            var chars4 = inBytes[start4..end4];
 
             var vec1 = Unsafe.ReadUnaligned<Vector<ushort>>(
-                ref Unsafe.As<ushort, byte>(ref MemoryMarshal.GetReference(chars1))) | mask;
+                ref Unsafe.As<ushort, byte>(ref Unsafe.AsRef(inChars[start1]))) | mask;
 
             var vec2 = Unsafe.ReadUnaligned<Vector<ushort>>(
-                ref Unsafe.As<ushort, byte>(ref MemoryMarshal.GetReference(chars2))) | mask;
+                ref Unsafe.As<ushort, byte>(ref Unsafe.AsRef(inChars[start2]))) | mask;
 
             var vec3 = Unsafe.ReadUnaligned<Vector<ushort>>(
-                ref Unsafe.As<ushort, byte>(ref MemoryMarshal.GetReference(chars3))) | mask;
+                ref Unsafe.As<ushort, byte>(ref Unsafe.AsRef(inChars[start3]))) | mask;
 
             var vec4 = Unsafe.ReadUnaligned<Vector<ushort>>(
-                ref Unsafe.As<ushort, byte>(ref MemoryMarshal.GetReference(chars4))) | mask;
+                ref Unsafe.As<ushort, byte>(ref Unsafe.AsRef(inChars[start4]))) | mask;
 
-            Unsafe.WriteUnaligned(ref Unsafe.As<ushort, byte>(ref outBytes[start1]), vec1);
-            Unsafe.WriteUnaligned(ref Unsafe.As<ushort, byte>(ref outBytes[start2]), vec2);
-            Unsafe.WriteUnaligned(ref Unsafe.As<ushort, byte>(ref outBytes[start3]), vec3);
-            Unsafe.WriteUnaligned(ref Unsafe.As<ushort, byte>(ref outBytes[start4]), vec4);
+            Unsafe.WriteUnaligned(ref Unsafe.As<ushort, byte>(ref outChars[start1]), vec1);
+            Unsafe.WriteUnaligned(ref Unsafe.As<ushort, byte>(ref outChars[start2]), vec2);
+            Unsafe.WriteUnaligned(ref Unsafe.As<ushort, byte>(ref outChars[start3]), vec3);
+            Unsafe.WriteUnaligned(ref Unsafe.As<ushort, byte>(ref outChars[start4]), vec4);
         }
 
         return output.ToString();
