@@ -1,5 +1,6 @@
 using System.Runtime.CompilerServices;
 using System.Runtime.Intrinsics.Arm;
+
 using FastCrypto.Algorithms;
 
 namespace FastCrypto.Benchmarks;
@@ -21,6 +22,7 @@ public class HashThroughput
             $"{nameof(ArmBase)}:{ArmBase.IsSupported}, " +
             $"{nameof(ArmBase.Arm64)}:{ArmBase.Arm64.IsSupported}, " +
             $"{nameof(AdvSimd)}:{AdvSimd.IsSupported}, " +
+            $"{nameof(Sha1)}:{Sha1.IsSupported} " +
             $"{nameof(Sha256)}:{Sha256.IsSupported}");
 
         _inputString = File.ReadAllText(inputFilePath);
