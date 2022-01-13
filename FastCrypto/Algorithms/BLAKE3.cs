@@ -9,7 +9,7 @@ public static class BLAKE3
         throw new NotImplementedException();
     }
 
-    private static void Round(Span<uint> v_payload64, Span<Vector128<uint>> msg_payload64, nuint r)
+    private static void Round(Span<uint> v_payload64, Span<uint> msg_payload64, nuint r)
     {
         throw new NotImplementedException();
     }
