@@ -1,6 +1,4 @@
-## FastCrypto
 Fast, lightweight and easy to use cryptographic APIs.
-Write straightforward cryptography code without worrying about security caveats or efficiency pitfalls.
 
 ## Todo
 - [ ] (in progress) Finalize library API surface
